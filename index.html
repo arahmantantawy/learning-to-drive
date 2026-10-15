@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learning to Drive</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+  /* Colours: change these to restyle the whole page */
+  :root {
+    --bg: #F4F6F8; --card: #FFFFFF; --text: #1E2430; --muted: #6B7280; --line: #E3E7EC;
+    --accent: #2B59C3; --accent-soft: #E6EDFB; --green: #2E9E5B; --amber: #E8A317; --grey: #B8BEC6;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #12151B; --card: #1B2029; --text: #E8EBF0; --muted: #9AA3AF; --line: #2A313C;
+    --accent: #7FA2F0; --accent-soft: #1F2A42; --green: #4CC27F; --amber: #F2B93B; --grey: #4A525E; color-scheme: dark; } }
+  :root[data-theme="dark"] {
+    --bg: #12151B; --card: #1B2029; --text: #E8EBF0; --muted: #9AA3AF; --line: #2A313C;
+    --accent: #7FA2F0; --accent-soft: #1F2A42; --green: #4CC27F; --amber: #F2B93B; --grey: #4A525E; color-scheme: dark; }
+
+  body { background: var(--bg); color: var(--text); font-family: "Source Sans 3", Arial, sans-serif; font-size: 16px; line-height: 1.5; margin: 0; }
+  /* Layout: menu on the left, content on the right */
+  .layout { max-width: 1060px; margin: 0 auto; padding-block: 40px 60px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 36px; }
+  .page { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+  .card, .card-group { scroll-margin-top: 20px; }
+  html { scroll-behavior: smooth; }
+
+  /* Side menu */
+  .menu { position: sticky; top: 20px; align-self: start; display: flex; flex-direction: column; gap: 2px; }
+  .menu .menu-title { font-family: "Lexend", Arial, sans-serif; font-weight: 700; margin-bottom: 10px; }
+  .menu a { color: var(--muted); text-decoration: none; padding: 7px 12px; border-radius: 8px; border-left: 3px solid transparent; }
+  .menu a:hover { color: var(--text); background: var(--card); }
+  .menu a.active { color: var(--accent); background: var(--card); border-left-color: var(--accent); font-weight: 600; }
+  h1, h2, h3 { font-family: "Lexend", Arial, sans-serif; margin: 0; }
+  h1 { font-size: 34px; }
+  h2 { font-size: 20px; margin-bottom: 14px; }
+  h3 { font-size: 15px; }
+  p { margin: 0 0 10px; } p:last-child { margin-bottom: 0; }
+  .sub { color: var(--muted); }
+  .small { font-size: 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 20px; }
+
+  /* Progress boxes */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .big { font-family: "Lexend", Arial, sans-serif; font-size: 26px; font-weight: 700; }
+  .bar { height: 10px; background: var(--line); border-radius: 99px; margin-top: 8px; overflow: hidden; }
+  .bar div { height: 100%; background: var(--green); }
+
+  /* How it works: 4 steps */
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .step { background: var(--bg); border-radius: 8px; padding: 14px; }
+  .step b { display: block; color: var(--accent); font-family: "Lexend", Arial, sans-serif; font-size: 13px; margin-bottom: 4px; }
+
+  /* Plan */
+  .stage { border-left: 3px solid var(--line); padding: 4px 0 14px 16px; }
+  .stage.now { border-left-color: var(--accent); }
+  .stage.now h3 { color: var(--accent); }
+  .stage summary { cursor: pointer; list-style: none; }
+  .stage summary::-webkit-details-marker { display: none; }
+  .stage summary h3::after { content: " +"; color: var(--muted); }
+  .stage[open] summary h3::after { content: " –"; }
+  .stage ul { margin: 6px 0 0; padding-left: 18px; color: var(--muted); font-size: 15px; }
+  .tag { font-size: 12px; font-weight: 600; background: var(--accent-soft); color: var(--accent); border-radius: 99px; padding: 1px 8px; margin-left: 6px; }
+
+  /* Lists */
+  .list { list-style: none; margin: 0; padding: 0; }
+  .list li { display: flex; gap: 12px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .list li:last-child { border-bottom: none; }
+  .list .grow { flex: 1; }
+  .when { color: var(--muted); font-size: 14px; min-width: 100px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; flex: none; transform: translateY(1px); }
+  .done { background: var(--green); } .doing { background: var(--amber); } .todo { background: var(--grey); }
+  .key { display: flex; gap: 16px; color: var(--muted); font-size: 14px; margin-top: 10px; flex-wrap: wrap; }
+  .key span { display: flex; gap: 6px; align-items: center; }
+  [hidden] { display: none !important; }   /* makes hidden goals disappear */
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .filters button { font: inherit; font-size: 14px; padding: 4px 14px; border-radius: 99px; border: 1px solid var(--line);
+    background: var(--card); color: var(--text); cursor: pointer; }
+  .filters button.active { background: var(--accent); border-color: var(--accent); color: var(--card); }
+  .tools { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px 24px; }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; gap: 16px; }
+    .menu { flex-direction: row; overflow-x: auto; background: var(--bg); padding: 8px 0; z-index: 5; top: 0; }
+    .menu .menu-title { display: none; }
+    .menu a { white-space: nowrap; border-left: none; }
+  }
+  @media (max-width: 700px) {
+    .stats, .tools { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 480px) {
+    .steps { grid-template-columns: 1fr; }
+    .list li { flex-wrap: wrap; } .when { min-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="menu">
+  <div class="menu-title">Contents</div>
+  <a href="#idea">The idea</a>
+  <a href="#progress">Progress</a>
+  <a href="#how">How it works</a>
+  <a href="#plan-section">Plan</a>
+  <a href="#goals-section">Goals</a>
+  <a href="#dates-section">Key dates</a>
+  <a href="#tools-section">Tools</a>
+  <a href="#meetings-section">Meetings</a>
+</nav>
+
+<div class="page">
+  <header>
+    <h1>Learning to Drive</h1>
+    <p class="sub">Final year project · Abdelrahman Tantavy · BSc Mathematics &amp; Computer Science · University of Birmingham, 2026–27</p>
+  </header>
+
+  <div class="card" id="idea">
+    <h2>The idea</h2>
+    <p>The goal of this project is to train a car in the CARLA driving simulator to drive itself from a start point to a destination in a city, avoiding obstacles, stopping at red lights and dealing with other cars and pedestrians.</p>
+    <p>To do this I'm using <b>reinforcement learning</b>: the car tries things, gets a reward for good driving (making progress, staying in lane) and a penalty for bad driving (crashing, running red lights), and slowly learns what works. The learning algorithm I plan to use is <b>PPO</b>.</p>
+    <p>I'm new to machine learning, so the first weeks are about learning the basics, then building up one step at a time, starting with empty roads and adding difficulty gradually. At the end I'll compare my car with a normal rule-based driver and test it on maps it hasn't seen before.</p>
+  </div>
+
+  <div class="stats card-group" id="progress">
+    <div class="card">Goals done<div class="big" id="progress-text"></div><div class="bar"><div id="progress-bar"></div></div></div>
+    <div class="card">Current stage<div class="big" id="stage-num"></div><div class="sub small" id="stage-name"></div></div>
+    <div class="card">Next deadline<div class="big" id="deadline-days"></div><div class="sub small" id="deadline-name"></div></div>
+  </div>
+
+  <div class="card" id="how">
+    <h2>How it works</h2>
+    <div class="steps">
+      <div class="step"><b>1. Look</b>The car reads simple information: its speed, the road ahead and how far away objects are.</div>
+      <div class="step"><b>2. Decide</b>The AI (a neural network) chooses how much to steer, accelerate or brake.</div>
+      <div class="step"><b>3. Act</b>CARLA moves the car and updates the world.</div>
+      <div class="step"><b>4. Score</b>The car gets points or loses points, and PPO uses the score to improve the AI.</div>
+    </div>
+    <p class="sub small" style="margin-top:12px">This loop repeats many thousands of times during training.</p>
+  </div>
+
+  <div class="card" id="plan-section">
+    <h2>Plan</h2>
+    <p class="sub small">Click a stage to show or hide its tasks.</p>
+    <div id="plan"></div>
+  </div>
+
+  <div class="card" id="goals-section">
+    <h2>Goals</h2>
+    <div class="filters">
+      <button class="active" data-show="all">All</button>
+      <button data-show="done">Done</button>
+      <button data-show="doing">Working on it</button>
+      <button data-show="todo">Not started</button>
+    </div>
+    <ul class="list" id="goals"></ul>
+    <div class="key"><span><i class="dot done"></i>Done</span><span><i class="dot doing"></i>Working on it</span><span><i class="dot todo"></i>Not started</span></div>
+  </div>
+
+  <div class="card" id="dates-section">
+    <h2>Key dates</h2>
+    <ul class="list" id="dates"></ul>
+  </div>
+
+  <div class="card" id="tools-section">
+    <h2>Tools</h2>
+    <div class="tools" id="tools"></div>
+  </div>
+
+  <div class="card" id="meetings-section">
+    <h2>Supervisor meetings</h2>
+    <ul class="list" id="meetings"></ul>
+  </div>
+</div>
+</div>
+
+<script>
+// ===== EDIT THESE LISTS TO UPDATE THE WEBSITE =====
+
+// status can be "done", "doing" or "todo"
+const GOALS = [
+  { name: "Register the project", by: "2026-10-15", status: "done" },
+  { name: "Install CARLA and get it running", by: "2026-10-18", status: "done" },
+  { name: "Make a car drive using my own code", by: "2026-10-25", status: "todo" },
+  { name: "Learn the basics of reinforcement learning (practise on simple games first)", by: "2026-11-08", status: "todo" },
+  { name: "Connect CARLA to the AI so it can control the car", by: "2026-11-29", status: "todo" },
+  { name: "Car follows a route on empty roads", by: "2026-12-20", status: "todo" },
+  { name: "Read and write up related research (literature review)", by: "2026-12-31", status: "todo" },
+  { name: "Car avoids parked cars and objects", by: "2027-01-17", status: "todo" },
+  { name: "Car stops at red lights and stays in lane", by: "2027-02-07", status: "todo" },
+  { name: "Car copes with moving traffic and pedestrians", by: "2027-02-21", status: "todo" },
+  { name: "Compare it with a normal rule-based driver", by: "2027-03-07", status: "todo" },
+  { name: "Test it on maps it has never seen", by: "2027-03-07", status: "todo" },
+  { name: "Write the report and record a demo video", by: "2027-03-22", status: "todo" },
+];
+
+const PLAN = [
+  { name: "Set up and learn the basics", start: "2026-10-12", end: "2026-11-08",
+    tasks: ["Install CARLA, Python and Git", "Write my first script that drives a car", "Learn RL basics with simple examples"] },
+  { name: "Connect the simulator to the AI", start: "2026-11-09", end: "2026-11-29",
+    tasks: ["Decide what the car can see and do", "Write the scoring (reward) rules", "Check everything runs without crashing"] },
+  { name: "First self-driving car", start: "2026-11-30", end: "2026-12-20",
+    tasks: ["Train the car on an empty map", "Get it to follow a route reliably", "Start the literature review"] },
+  { name: "Obstacles", start: "2026-12-21", end: "2027-01-17",
+    tasks: ["Add parked cars and objects", "Give the car distance sensors", "Finish the literature review", "January exams: lighter weeks"] },
+  { name: "Traffic rules", start: "2027-01-18", end: "2027-02-07",
+    tasks: ["Stop at red lights", "Stay in lane and keep to the speed limit"] },
+  { name: "Traffic and pedestrians", start: "2027-02-08", end: "2027-02-21",
+    tasks: ["Add moving cars", "Add people crossing the road"] },
+  { name: "Testing and comparisons", start: "2027-02-22", end: "2027-03-07",
+    tasks: ["Compare with a rule-based driver", "Test on new maps", "Measure success rate and crashes"] },
+  { name: "Write the report", start: "2027-03-08", end: "2027-03-26",
+    tasks: ["10-page report", "Demo video", "Tidy up the code"] },
+];
+
+const DATES = [
+  { name: "Project registration", date: "2026-10-15" },
+  { name: "Report to supervisor", date: "2027-03-22" },
+  { name: "Final report and code (GitLab)", date: "2027-03-26" },
+  { name: "Project inspection (weeks 11–12, dates to confirm)", date: "2027-04-26" },
+];
+
+const TOOLS = [
+  ["CARLA", "the driving simulator (city maps, traffic, pedestrians)"],
+  ["Python", "the language everything is written in"],
+  ["Stable-Baselines3", "a library that provides the PPO algorithm"],
+  ["PyTorch", "runs the neural network on the GPU"],
+  ["VS Code + Miniconda", "where I write and run the code"],
+  ["GitLab", "stores my code and tracks my progress"],
+];
+
+// newest first, e.g. { date: "2026-10-14", notes: "Talked through the project idea." }
+const MEETINGS = [
+];
+
+// ===== CODE BELOW BUILDS THE PAGE FROM THE LISTS ABOVE =====
+
+const today = new Date();
+const day = d => new Date(d + "T00:00");
+const niceDate = d => day(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+const daysUntil = d => Math.ceil((day(d) - today) / 86400000);
+
+function addItem(listId, html) {
+  const li = document.createElement("li");
+  li.innerHTML = html;
+  document.getElementById(listId).appendChild(li);
+  return li;
+}
+
+// Goals and progress
+let done = 0;
+for (const goal of GOALS) {
+  if (goal.status === "done") done++;
+  const li = addItem("goals", `<i class="dot ${goal.status}"></i><span class="grow">${goal.name}</span><span class="when">by ${niceDate(goal.by)}</span>`);
+  li.dataset.status = goal.status;
+}
+
+// Goal filter buttons: show only goals with the chosen status
+for (const button of document.querySelectorAll(".filters button")) {
+  button.addEventListener("click", () => {
+    document.querySelectorAll(".filters button").forEach(b => b.classList.remove("active"));
+    button.classList.add("active");
+    for (const li of document.querySelectorAll("#goals li")) {
+      li.hidden = button.dataset.show !== "all" && li.dataset.status !== button.dataset.show;
+    }
+  });
+}
+document.getElementById("progress-text").textContent = `${done} of ${GOALS.length}`;
+document.getElementById("progress-bar").style.width = (done / GOALS.length * 100) + "%";
+
+// Plan, with the current stage highlighted
+PLAN.forEach((stage, i) => {
+  const isNow = today >= day(stage.start) && daysUntil(stage.end) >= 0;
+  const div = document.createElement("details");   // <details> can be opened and closed by clicking
+  div.className = "stage" + (isNow ? " now" : "");
+  div.open = isNow;                                    // only the current stage starts open
+  div.innerHTML = `<summary><h3>${i + 1}. ${stage.name}${isNow ? '<span class="tag">Now</span>' : ""}</h3>
+    <div class="sub small">${niceDate(stage.start)} – ${niceDate(stage.end)}</div></summary>
+    <ul>${stage.tasks.map(t => `<li>${t}</li>`).join("")}</ul>`;
+  document.getElementById("plan").appendChild(div);
+  if (isNow) {
+    document.getElementById("stage-num").textContent = `${i + 1} of ${PLAN.length}`;
+    document.getElementById("stage-name").textContent = stage.name;
+  }
+});
+
+// Key dates and the next deadline
+for (const d of DATES) {
+  const n = daysUntil(d.date);
+  addItem("dates", `<span class="when">${niceDate(d.date)}</span><span class="grow">${d.name}</span><span class="sub small">${n <= 0 ? "done" : n + " days"}</span>`);
+}
+const next = DATES.find(d => daysUntil(d.date) > 0);
+if (next) {
+  document.getElementById("deadline-days").textContent = daysUntil(next.date) + " days";
+  document.getElementById("deadline-name").textContent = `${next.name} · ${niceDate(next.date)}`;
+}
+
+// Tools
+for (const [name, use] of TOOLS) {
+  const div = document.createElement("div");
+  div.innerHTML = `<b>${name}</b> <span class="sub">– ${use}</span>`;
+  document.getElementById("tools").appendChild(div);
+}
+
+// Side menu: highlight the section currently on screen
+const menuLinks = document.querySelectorAll(".menu a");
+const watcher = new IntersectionObserver(entries => {
+  for (const entry of entries) {
+    if (entry.isIntersecting) {
+      menuLinks.forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + entry.target.id));
+    }
+  }
+}, { rootMargin: "-40% 0px -55% 0px" });
+menuLinks.forEach(a => watcher.observe(document.querySelector(a.getAttribute("href"))));
+
+// Meetings
+if (MEETINGS.length === 0) addItem("meetings", `<span class="sub">No meetings added yet.</span>`);
+for (const m of MEETINGS) {
+  addItem("meetings", `<span class="when">${niceDate(m.date)}</span><span class="grow">${m.notes}</span>`);
+}
+</script>
+</body>
+</html>
